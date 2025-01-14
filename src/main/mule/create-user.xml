@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<sub-flow name="createUser" doc:id="b2037961-68a1-4008-8fc1-c6f0e1912dc4" >
+		<logger level="INFO" doc:name="start" doc:id="ea87b5b7-2972-409b-a0db-4451cf3532c0" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow started",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+		<ee:transform doc:name="originalPayload" doc:id="0514b836-c5d1-41dd-a1d8-c63554c0ac7c">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="originalPayload"><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="eb583f26-a4e6-4a97-a31a-45e623293b0f" >
+			<os:retrieve doc:name="Retrieve users" doc:id="816f4c61-c460-4e8a-9c9d-55230a41774e" key="users" objectStore="objectStoreConfig">
+			<os:default-value><![CDATA[#[[]]]]></os:default-value>
+		</os:retrieve>
+			<ee:transform doc:name="newUser" doc:id="bea95641-9695-4408-b129-92b1a4ce142b">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="newUser"><![CDATA[%dw 2.0
+output application/json
+---
+[{
+	"userId": uuid()
+} ++ vars.originalPayload]]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			<ee:transform doc:name="usersList" doc:id="359b5b7d-5d2d-4775-9335-1659e5f3b45d">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="usersList"><![CDATA[%dw 2.0
+output application/json
+---
+if(payload != null)
+payload ++ vars.newUser
+else
+vars.newUser]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			<os:store doc:id="c9906c1d-b984-478e-b90e-930be3acdd55" key="users" doc:name="Store users" objectStore="objectStoreConfig">
+			<os:value><![CDATA[#[vars.usersList]]]></os:value>
+		</os:store>
+			<ee:transform doc:name="response" doc:id="dcb6e5c7-af92-4d12-b222-49582a1ac32c">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+{
+  "message": "User created successfuly",
+  "userId": vars.newUser.userId[0]
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="15a57330-d515-4a21-a228-eb7483590bcb" type="ANY">
+					<logger level="ERROR" doc:name="ERROR" doc:id="714c2848-a34b-445f-9eca-fad202fe2fee" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "An error has ocurred when trying to create a user.",&#10;	"error": error.description	&#10;}]'/>
+					<ee:transform doc:name="errorResponse" doc:id="4227639f-e6fd-4100-8f4a-516def76048a" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "An error has ocurred when trying to create a user.",
+	"error": error.description
+	//podría mapear los statusCode, pero al no conocer que DB voy a utilizar 
+	//y los diferentes statusCodes que podría tener, prefiero dejarlo en un 500 generico
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="end" doc:id="816e1deb-361e-4fb4-a8fa-8807d733c33c" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow ended",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]'/>
+	</sub-flow>
+</mule>

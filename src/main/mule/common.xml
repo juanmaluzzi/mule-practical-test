@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="httpListenerConfig">
+     	<http:listener-connection host="0.0.0.0" port="8091" />
+    </http:listener-config>
+    <apikit:config name="mule-practical-test-config" api="mule-practical-test.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    
+	<configuration-properties doc:name="Configuration properties" doc:id="c673c0df-e939-41bf-98be-4dc458d483eb" file="config/${mule.env}.properties" />
+	<os:object-store name="objectStoreConfig" doc:name="Object store" doc:id="1b3db879-19b7-4699-8d8a-0f18381342c1" persistent="false" entryTtl="30" entryTtlUnit="MINUTES" expirationInterval="30" />
+</mule>

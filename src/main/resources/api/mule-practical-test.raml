@@ -1,0 +1,54 @@
+#%RAML 1.0
+title: mule-practical-test
+description: SOHO Mulesoft practical test
+version: v1
+mediaType: application/json
+
+/users:
+    get:
+      description: Get users
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include examples/get-users-response.json         
+        404:
+          description: No users found
+    
+    post: 
+      description: Create new user
+      body:
+        application/json:
+          type: !include data-types/dt-create-user.raml
+          example: !include examples/create-user-request.json
+      responses:
+        201:
+          body:
+            application/json:
+              example: !include examples/create-user-response.json
+        400:
+          body:
+            application/json:
+              example: !include examples/bad-request-error.json
+
+/user/{userId}:
+    uriParameters:
+      userId:
+        description: The unique identifier of the user
+        type: string
+        required: true
+    get:
+      description: Get users by id
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include examples/get-user-by-id-response.json    
+        404: 
+          body:
+            application/json:
+              example: !include examples/not-found-error.json
+
+
+
+

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="mule-practical-test-main">
+        <http:listener config-ref="httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <ee:transform doc:name="correlationId" doc:id="3f96bcd2-084a-46d9-8bad-2d894ae3ed2e">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="correlationId"><![CDATA[%dw 2.0
+output application/json
+---
+correlationId]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <apikit:router config-ref="mule-practical-test-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:*" enableNotifications="true" logException="true">
+                <ee:transform doc:name="errorResponse">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var message = error.exception.stringRepresentation match {
+	case "APIKIT:BAD_REQUEST" -> {
+  "message": "Error creating user, please check the request payload and try again",
+  "code": "BAD_REQUEST"
+}
+	case "APIKIT:NOT_FOUND" -> "Resource not found"
+	case "APIKIT:METHOD_NOT_ALLOWED" -> "Method not allowed"
+	case "APIKIT:NOT_ACCEPTABLE" -> "Not acceptable"
+	case "APIKIT:UNSUPPORTED_MEDIA_TYPE" -> "Unsupported media type"
+	case "APIKIT:NOT_IMPLEMENTED" -> "Not Implemented"
+	else -> "Unknown error"
+}
+---
+message]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/json
+
+var message = error.exception.stringRepresentation match {
+	case "APIKIT:BAD_REQUEST" -> 400
+	case "APIKIT:NOT_FOUND" -> 404
+	case "APIKIT:METHOD_NOT_ALLOWED" -> 405
+	case "APIKIT:NOT_ACCEPTABLE" -> 406
+	case "APIKIT:UNSUPPORTED_MEDIA_TYPE" -> 415
+	case "APIKIT:NOT_IMPLEMENTED" -> 501
+	else -> 500
+}
+---
+message]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="mule-practical-test-console" initialState="stopped">
+        <http:listener config-ref="httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="mule-practical-test-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\user\(userId):mule-practical-test-config">
+        <flow-ref doc:name="getUserById" doc:id="f17d2399-fcac-4041-87b2-e56eb6d61690" name="getUserById" />
+    </flow>
+    <flow name="get:\users:mule-practical-test-config">
+        <flow-ref doc:name="getUsers" doc:id="b874cc1f-26e3-4767-878b-59aec0b2c55e" name="getUsers" />
+    </flow>
+    <flow name="post:\users:application\json:mule-practical-test-config">
+        <flow-ref doc:name="createUser" doc:id="4e6818a6-65d5-4b68-96a6-7f8ba0f9ac34" name="createUser" />
+    </flow>
+</mule>
