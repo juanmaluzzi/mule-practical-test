@@ -97,15 +97,16 @@ httpStatus default attributes.statusCode]]></ee:set-variable>
 						</ee:transform>
 						<ee:transform doc:name="errorResponse" doc:id="8926317d-8774-4a87-b5b2-ef86a0d5ae0e" >
 							<ee:message >
-								<ee:set-payload ><![CDATA[%dw 2.0
+							</ee:message>
+							<ee:variables >
+								<ee:set-variable variableName="errorResponse" ><![CDATA[%dw 2.0
 output application/json
 ---
 {
 	"message": if(vars.httpStatus == 504) "TIMEOUT EXCEEDED" else if(vars.httpStatus == 502) "CONNECTIVITY ERROR" else "INTERNAL SERVER ERROR",
 	"error": error.description
-}]]></ee:set-payload>
-							</ee:message>
-							<ee:variables />
+}]]></ee:set-variable>
+							</ee:variables>
 						</ee:transform>
 					</on-error-propagate>
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="56805751-ed23-4ad3-9249-57d5635490c5" >
@@ -137,7 +138,9 @@ httpStatus default attributes.statusCode]]></ee:set-variable>
 						</ee:transform>
 						<ee:transform doc:name="errorResponse" doc:id="6a6db966-b7b9-48ce-915b-ee0954d47500" >
 							<ee:message >
-								<ee:set-payload ><![CDATA[%dw 2.0
+							</ee:message>
+							<ee:variables >
+								<ee:set-variable variableName="errorResponse" ><![CDATA[%dw 2.0
 output application/json
 
 var errorMessage = vars.httpStatus match{
@@ -153,9 +156,8 @@ var errorMessage = vars.httpStatus match{
 {
 	"message": errorMessage,
 	"error": error.description
-}]]></ee:set-payload>
-							</ee:message>
-							<ee:variables />
+}]]></ee:set-variable>
+							</ee:variables>
 						</ee:transform>
 					</on-error-continue>
 				</error-handler>
@@ -205,6 +207,16 @@ output application/json
 					</ee:message>
 				</ee:transform>
 			</when>
+			<otherwise >
+				<ee:transform doc:name="errorResponse" doc:id="58c01774-957b-40c7-b26e-c6118a5dbaf5" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.errorResponse]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
 		</choice>
 	</sub-flow>
 </mule>

@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 	<http:listener-config name="httpListenerConfig">
-     	<http:listener-connection host="0.0.0.0" port="8091" />
+     	<http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
     <apikit:config name="mule-practical-test-config" api="mule-practical-test.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     
