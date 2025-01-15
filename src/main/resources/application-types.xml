@@ -2,4 +2,7 @@
 <types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
   <types:catalog/>
   <types:enrichment select="#59a5b152-8e4e-4a25-b676-948e265d1336"/>
+  <types:enrichment select="#a1ae88ec-5f6d-4b14-8498-9b246fc9535a"/>
+  <types:enrichment select="#0ad8a830-b1a9-40a0-b43f-f1e876dd5841"/>
+  <types:enrichment select="#b40d565c-7d18-416c-9b65-98a4b41d62fe"/>
 </types:mule>

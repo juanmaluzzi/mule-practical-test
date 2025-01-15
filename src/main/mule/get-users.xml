@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 	<sub-flow name="getUsers" doc:id="384e0736-b61d-45a4-ac9a-a1befda83644" >
-		<logger level="INFO" doc:name="start" doc:id="09c5e0de-7329-4d1d-a78a-c2f3ebe3219d" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get all users flow started",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]'/>
+		<logger level="INFO" doc:name="start - INFO" doc:id="09c5e0de-7329-4d1d-a78a-c2f3ebe3219d" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get all users flow started",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]'/>
 		<try doc:name="Try" doc:id="110071c7-6d0b-4458-aafa-690f5654444a" >
 			<os:retrieve doc:name="Retrieve all users" doc:id="a9e61f5d-e42b-46af-9c72-0695c2bdac59" key="users" objectStore="objectStoreConfig">
 			<os:default-value><![CDATA[#[[]]]]></os:default-value>
 		</os:retrieve>
-			<ee:transform doc:name="buildResponse" doc:id="4a82f9b9-75af-445a-abce-e4e028ef1524">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-payload]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+			<set-variable value="#[payload]" doc:name="users" doc:id="f1b6796f-31ec-496d-8fcc-c58a5057922f" variableName="users"/>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="16a79948-97d9-4196-a044-4a6dbc30bc5b" type="ANY" >
-					<logger level="ERROR" doc:name="ERROR" doc:id="aaeecf98-eb21-4b77-ade8-a5283302f208" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "An error has occurred when trying to fetch users.",&#10;	"error": error.description	&#10;}]' />
+					<logger level="ERROR" doc:name="ERROR" doc:id="aaeecf98-eb21-4b77-ade8-a5283302f208" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "An error has occurred when trying to fetch users.",&#10;	"flowName": flow.name,&#10;	"error": error.description	&#10;}]' />
 					<ee:transform doc:name="errorResponse" doc:id="08dcf3e6-ecdd-4e9e-a3a2-d0740effb267" >
 						<ee:message >
 							<ee:set-payload ><![CDATA[%dw 2.0
@@ -38,34 +32,20 @@ output application/json
 				</on-error-propagate>
 			</error-handler>
 		</try>
-		<logger level="INFO" doc:name="end" doc:id="d214592c-5dc9-463a-94f0-9379a702ec3b" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get all users flow ended",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+		<flow-ref doc:name="getUsersAddress" doc:id="0b92d8df-d62d-4579-92a3-d71bc367a2c9" name="getUsersAddressRequest" />
+		<logger level="INFO" doc:name="end - INFO" doc:id="d214592c-5dc9-463a-94f0-9379a702ec3b" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get all users flow ended",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
 	</sub-flow>
 	<sub-flow name="getUserById" doc:id="06347c84-a663-4eff-a754-f8797fd92d6b" >
-		<logger level="INFO" doc:name="start" doc:id="6fe78aab-c885-412d-883f-d00844b05345" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get user by id flow started",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
-		<set-variable value="#[attributes.uriParams.'userId']" doc:name="userId" doc:id="9efe1e6e-1a3a-4a36-ae35-2354dbaf3e48" variableName="userId"/>
+		<logger level="INFO" doc:name="start - INFO" doc:id="6fe78aab-c885-412d-883f-d00844b05345" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get user by id flow started",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+		<set-variable value="#[attributes.uriParams.'userId' as Number]" doc:name="userId" doc:id="9efe1e6e-1a3a-4a36-ae35-2354dbaf3e48" variableName="userId"/>
 		<try doc:name="Try" doc:id="4c7ab0db-2ed5-46fc-a18d-e58279f4e67c" >
 			<os:retrieve doc:name="Retrieve all users" doc:id="90e3abab-0b87-483d-8037-95e8661c1332" key="users" objectStore="objectStoreConfig">
 			<os:default-value><![CDATA[#[[]]]]></os:default-value>
 		</os:retrieve>
-			<ee:transform doc:name="buildResponse" doc:id="966d0fc7-f5dc-4697-b399-935baa2838e6">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
-output application/json
-
-var userFilter = payload filter (user) -> user.userId == vars.userId
----
-if(!isEmpty(userFilter))
-userFilter
-else
-{
-  "message": "User not found",
-  "userId": vars.userId,
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
+			<set-variable value="#[payload]" doc:name="users" doc:id="b6a20d78-c5cd-48ca-a560-1b6e0e8a7d1d" variableName="users" />
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="735a5a0b-8a8f-4f1e-b19a-daa0b1a439a7" type="ANY" >
-					<logger level="ERROR" doc:name="ERROR" doc:id="b07b85b0-832f-46c0-b5c7-b59523893b8a" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    "message": "An error has occurred when trying to fetch the user with ID: " ++ vars.userId as String,&#10;    "error": error.description&#10;}]' />
+					<logger level="ERROR" doc:name="ERROR" doc:id="b07b85b0-832f-46c0-b5c7-b59523893b8a" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    "message": "An error has occurred when trying to fetch the user with ID: " ++ vars.userId as String,&#10;    "flowName": flow.name,&#10;    "error": error.description&#10;}]' />
 					<ee:transform doc:name="errorResponse" doc:id="c62d2faa-b24a-4758-85b9-df28fd3e8ada" >
 						<ee:message >
 							<ee:set-payload ><![CDATA[%dw 2.0
@@ -82,6 +62,149 @@ output application/json
 				</on-error-propagate>
 			</error-handler>
 		</try>
-		<logger level="INFO" doc:name="end" doc:id="eaf0b206-0ed1-48d0-ab47-6b94cfd56583" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get user by id flow ended",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+		<flow-ref doc:name="getUsersAddress" doc:id="fc0bb629-614a-4a26-a478-2260def89e4b" name="getUsersAddressRequest" />
+		<logger level="INFO" doc:name="end - INFO" doc:id="eaf0b206-0ed1-48d0-ab47-6b94cfd56583" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"get user by id flow ended",&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+	</sub-flow>
+	<sub-flow name="getUsersAddressRequest" doc:id="802ba5cf-85c7-4d0a-ad2b-cdfeb3d0faed" >
+		<logger level="DEBUG" doc:name="startRequest - DEBUG" doc:id="301babf3-4cac-4d7f-a3d5-51aec2c80382" message="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	&quot;message&quot;:&quot;request to: &quot; ++ p('api.users.host') ++ p('api.users.path'),&#10;	&quot;flow&quot;: flow.name,&#10;	&quot;correlationId&quot;: vars.correlationId&#10;}]" />
+		<until-successful maxRetries="${request.max.retries}" doc:name="Until Successful" doc:id="beda78a9-ffb2-4e41-b363-f79848dc3471" millisBetweenRetries="${request.ms.retries}" >
+			<try doc:name="Try" doc:id="9e6f3a56-bfe4-4592-97b1-a5e3d8db1ca6" >
+				<http:request method="GET" doc:name="HTTP Request" doc:id="0d121787-6617-4cbf-91e4-3e34369cca2e" config-ref="HTTPRequestConfig" path="${api.users.path}" >
+					<http:response-validator >
+						<http:success-status-code-validator values="100..400,404" />
+					</http:response-validator>
+				</http:request>
+				<set-variable value="#[attributes.statusCode]" doc:name="httpStatus" doc:id="e8ef4460-c459-4d1c-a06e-791a54da017e" variableName="httpStatus" />
+				<error-handler >
+					<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5e403455-e720-4c6a-b0bc-6f5a5059f649" type="HTTP:CONNECTIVITY, HTTP:TIMEOUT" >
+						<logger level="ERROR" doc:name="ERROR" doc:id="162287e0-46f1-429a-bfee-662ca9293b5f" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    "message": "TIMEOUT EXCEEDED",&#10;    "flowName": flow.name,&#10;    "error": error.description&#10;}]' />
+						<ee:transform doc:name="httpStatus" doc:id="f9932abc-b0fb-4938-a606-63a3e1a69f69" >
+							<ee:message />
+							<ee:variables >
+								<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+
+var errorCode = error.errorType.identifier
+
+var httpStatus = errorCode match{
+		case "CONNECTIVITY" -> 502
+		case "TIMEOUT" -> 504
+		else -> 500
+	}
+---
+httpStatus default attributes.statusCode]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<ee:transform doc:name="errorResponse" doc:id="8926317d-8774-4a87-b5b2-ef86a0d5ae0e" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": if(vars.httpStatus == 504) "TIMEOUT EXCEEDED" else if(vars.httpStatus == 502) "CONNECTIVITY ERROR" else "INTERNAL SERVER ERROR",
+	"error": error.description
+}]]></ee:set-payload>
+							</ee:message>
+							<ee:variables />
+						</ee:transform>
+					</on-error-propagate>
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="56805751-ed23-4ad3-9249-57d5635490c5" >
+						<logger level="ERROR" doc:name="ERROR" doc:id="5d63b391-7ded-4eda-80a0-91df0ad4c995" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    "message": "An error has occurred",&#10;    "flowName": flow.name,&#10;    "error": error.description&#10;}]' />
+						<ee:transform doc:name="httpStatus" doc:id="30ff69ad-f162-4225-a745-5a4366209b50" >
+							<ee:message />
+							<ee:variables >
+								<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+
+var errorCode = error.errorType.identifier
+
+var httpStatus = errorCode match{
+		case "BAD_REQUEST" -> 400
+		case "UNAUTHORIZED" -> 401
+		case "FORBIDDEN" -> 403
+		case "NOT_FOUND" -> 404
+		case "METHOD_NOT_ALLOWED" -> 405
+		case "UNSUPPORTED_MEDIA_TYPE" -> 415
+		case "BAD_GATEWAY" -> 502
+		case "SERVICE_UNAVAILABLE" -> 503
+		case "TIMEOUT" -> 504
+		case "CONNECTIVITY" -> 504
+		else -> 500
+	}
+---
+httpStatus default attributes.statusCode]]></ee:set-variable>
+							</ee:variables>
+						</ee:transform>
+						<ee:transform doc:name="errorResponse" doc:id="6a6db966-b7b9-48ce-915b-ee0954d47500" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var errorMessage = vars.httpStatus match{
+		case 401 -> "UNAUTHORIZED"
+		case 403 -> "FORBIDDEN"
+		case 405 -> "METHOD_NOT_ALLOWED"
+		case 415 -> "UNSUPPORTED_MEDIA_TYPE"
+		case 502 -> "BAD_GATEWAY"
+		case 503 -> "SERVICE_UNAVAILABLE"
+		else -> 500
+	}
+---
+{
+	"message": errorMessage,
+	"error": error.description
+}]]></ee:set-payload>
+							</ee:message>
+							<ee:variables />
+						</ee:transform>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</until-successful>
+		<logger level="DEBUG" doc:name="endRequest - DEBUG" doc:id="a1c35c75-e015-4705-a59f-6ef31a6e702a" message="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	&quot;message&quot;:&quot;request to: &quot; ++ p('api.users.host') ++ p('api.users.path'),&#10;	&quot;flow&quot;: flow.name,&#10;	&quot;correlationId&quot;: vars.correlationId&#10;}]" />
+		<choice doc:name="Choice" doc:id="a206f9f9-9fe0-4b03-9193-df9313d4e159">
+			<when expression="#[vars.httpStatus &gt;= 100 and vars.httpStatus &lt;= 299]">
+				<ee:transform doc:name="buildResponse" doc:id="f21e221e-7614-4df7-8287-3b7880cf4969">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var filteredUsers = if (vars.userId != null)
+    vars.users filter ((user) -> user.userId == vars.userId)
+else
+    vars.users
+
+---
+filteredUsers map ((user) -> {
+    userId: user.userId,
+    name: user.name,
+    lastName: user.lastName,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    address: (
+        payload filter ((item) -> item.id == user.userId)
+        map ((address) -> address.address)
+    )[0] default "Address not found."
+})
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<when expression="#[vars.httpStatus == 400 or vars.httpStatus == 404]">
+				<logger level="ERROR" doc:name="ERROR" doc:id="d9c87e6a-03c5-4e93-ab5f-6050f5054c5a" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    "message": "An error has occurred",&#10;    "flowName": flow.name,&#10;    "error": error.description&#10;}]' />
+				<ee:transform doc:name="errorResponse" doc:id="0ea73266-2b29-4cb1-9985-e59578342ea9">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "An error has occurred",
+	"error": if(vars.httpStatus == 400) "Bad Request" else if(vars.httpStatus == 404) "Not Found" else "Internal server error", 
+	"httpStatus": vars.httpStatus
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+		</choice>
 	</sub-flow>
 </mule>

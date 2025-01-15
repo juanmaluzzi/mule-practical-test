@@ -1,8 +1,17 @@
 {
-  "id": "147eed41-c93c-4e45-91be-56b9f308bfc8",
-  "name": "Juan Manuel",
+  "userId": 1,
+  "name": "Juanma",
   "lastName": "Luzzi",
   "email": "luzzijuanma@gmail.com",
   "phoneNumber": "5491165912727",
-  "city": "Buenos Aires"
+  "address": {
+    "street": "123 Main Street",
+    "suite": "Apt. 4",
+    "city": "Anytown",
+    "zipcode": "12345-6789",
+    "geo": {
+      "lat": "42.1234",
+      "lng": "-71.2345"
+    }
+  }
 }

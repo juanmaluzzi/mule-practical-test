@@ -1,28 +1,53 @@
-{
-  "users": [
-    {
-      "id": "147eed41-c93c-4e45-91be-56b9f308bfc8",
-      "name": "Juan Manuel",
-      "lastName": "Luzzi",
-      "email": "luzzijuanma@gmail.com",
-      "phoneNumber": "5491165912727",
-      "city": "Buenos Aires"
-    },
-    {
-      "id": "be14c7f4-0808-4f1d-9544-b0bbabcf0135",
-      "name": "Jorge",
-      "lastName": "Roquefeler",
-      "email": "Roquefelerj@yahoo.com.ar",
-      "phoneNumber": "3418929838",
-      "city": "Chubut"
-    },
-    {
-      "id": "be358c22-eb24-4798-8143-92e96eeacc9f",
-      "name": "Horacio",
-      "lastName": "Capanni",
-      "email": "capannihoracio@hotmail.com",
-      "phoneNumber": "5491123984732",
-      "city": "Santa fe"
+[
+  {
+    "userId": 1,
+    "name": "Juanma",
+    "lastName": "Luzzi",
+    "email": "luzzijuanma@gmail.com",
+    "phoneNumber": "5491165912727",
+    "address": {
+      "street": "123 Main Street",
+      "suite": "Apt. 4",
+      "city": "Anytown",
+      "zipcode": "12345-6789",
+      "geo": {
+        "lat": "42.1234",
+        "lng": "-71.2345"
+      }
     }
-  ]
-}
+  },
+  {
+    "userId": 2,
+    "name": "Jotaeme",
+    "lastName": "Kole",
+    "email": "kole97@gmail.com",
+    "phoneNumber": "3412323231",
+    "address": {
+      "street": "456 Oak Street",
+      "suite": "Suite 200",
+      "city": "Anytown",
+      "zipcode": "12345-6789",
+      "geo": {
+        "lat": "42.3456",
+        "lng": "-71.6789"
+      }
+    }
+  },
+  {
+    "userId": 3,
+    "name": "Agustin",
+    "lastName": "Lopez",
+    "email": "LopAgus@gmail.com",
+    "phoneNumber": "54923231232",
+    "address": {
+      "street": "789 Elm Street",
+      "suite": "Apt. 100",
+      "city": "Anytown",
+      "zipcode": "12345-6789",
+      "geo": {
+        "lat": "42.5678",
+        "lng": "-71.1234"
+      }
+    }
+  }
+]

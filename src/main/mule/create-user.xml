@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 	<sub-flow name="createUser" doc:id="b2037961-68a1-4008-8fc1-c6f0e1912dc4" >
-		<logger level="INFO" doc:name="start" doc:id="ea87b5b7-2972-409b-a0db-4451cf3532c0" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow started",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
+		<logger level="INFO" doc:name="start - INFO" doc:id="ea87b5b7-2972-409b-a0db-4451cf3532c0" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow started",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]' />
 		<ee:transform doc:name="originalPayload" doc:id="0514b836-c5d1-41dd-a1d8-c63554c0ac7c">
 			<ee:message>
 			</ee:message>
@@ -29,7 +29,7 @@ payload]]></ee:set-variable>
 output application/json
 ---
 [{
-	"userId": uuid()
+	"userId": if(!isEmpty(payload)) payload.userId[-1] + 1 else 1
 } ++ vars.originalPayload]]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
@@ -63,7 +63,7 @@ output application/json
 		</ee:transform>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="15a57330-d515-4a21-a228-eb7483590bcb" type="ANY">
-					<logger level="ERROR" doc:name="ERROR" doc:id="714c2848-a34b-445f-9eca-fad202fe2fee" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "An error has ocurred when trying to create a user.",&#10;	"error": error.description	&#10;}]'/>
+					<logger level="ERROR" doc:name="ERROR" doc:id="714c2848-a34b-445f-9eca-fad202fe2fee" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message": "An error has ocurred when trying to create a user.",&#10;	"flowName": flow.name,&#10;	"error": error.description	&#10;}]'/>
 					<ee:transform doc:name="errorResponse" doc:id="4227639f-e6fd-4100-8f4a-516def76048a" >
 						<ee:message >
 							<ee:set-payload ><![CDATA[%dw 2.0
@@ -80,6 +80,6 @@ output application/json
 				</on-error-propagate>
 			</error-handler>
 		</try>
-		<logger level="INFO" doc:name="end" doc:id="816e1deb-361e-4fb4-a8fa-8807d733c33c" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow ended",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]'/>
+		<logger level="INFO" doc:name="end - INFO" doc:id="816e1deb-361e-4fb4-a8fa-8807d733c33c" message='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;	"message":"create user flow ended",&#10;	"payload": payload,&#10;	"flow": flow.name,&#10;	"correlationId": vars.correlationId&#10;}]'/>
 	</sub-flow>
 </mule>
