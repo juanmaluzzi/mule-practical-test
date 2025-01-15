@@ -1,5 +1,5 @@
 {
-    "minMuleVersion": "4.8.1",
+    "minMuleVersion": "4.6.0",
     "javaSpecificationVersions": ["17"],
     "secureProperties": ["token"]
 }
